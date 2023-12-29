@@ -1,0 +1,125 @@
+name: Create Zeek release
+
+on:
+  workflow_dispatch:
+    inputs:
+      zeek_ref:
+        required: false
+        type: string
+        default: 'master'
+      build_zeek_ref:
+        required: false
+        type: string
+        default: 'main'
+      release_tag:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        platform: [macos-12, ubuntu-20.04, windows-2019]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+    - name: Checkout build-zeek
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.build_zeek_ref }}
+
+    - name: Setup Go
+      uses: actions/setup-go@v3
+      with:
+        go-version-file: go.mod
+
+    - name: Checkout zeek
+      uses: actions/checkout@v3
+      with:
+        repository: zeek/zeek
+        ref: ${{ inputs.zeek_ref }}
+        fetch-depth: 1
+        submodules: recursive
+        path: zeek-src
+
+    - name: Build zeekrunner (Windows)
+      if: startsWith(matrix.platform, 'windows-')
+      run: go build -o zeekrunner.exe zeekrunner.go
+
+    # Includes workaround from https://github.com/maxmind/libmaxminddb/pull/334
+    - name: Build libmaxminddb (Windows)
+      if: startsWith(matrix.platform, 'windows-')
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
+        curl -L https://github.com/maxmind/libmaxminddb/releases/download/1.8.0/libmaxminddb-1.8.0.tar.gz | tar xzvf -
+        cd libmaxminddb-1.8.0
+        curl -O https://github.com/maxmind/libmaxminddb/commit/e695f1b59640760ae14fcfaecfb26d8c0bd47f3e.diff
+        unix2dos e695f1b59640760ae14fcfaecfb26d8c0bd47f3e.diff
+        patch -p1 < e695f1b59640760ae14fcfaecfb26d8c0bd47f3e.diff
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build .
+        cmake --build . --target install
+      shell: cmd
+
+    - name: Build Zeek (Windows)
+      if: startsWith(matrix.platform, 'windows-')
+      run: |
+        choco install -y --no-progress conan --version=1.58.0
+        choco install -y --no-progress winflexbison3
+        call refreshenv
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
+        mkdir zeek-src\build
+        cd zeek-src\build
+        cmake.exe .. -DCMAKE_BUILD_TYPE=release -DENABLE_ZEEK_UNIT_TESTS=yes -D CMAKE_INSTALL_PREFIX="C:\Program Files\Git\usr\local\zeek" -DLibMMDB_INCLUDE_DIR="C:\Program Files (x86)\maxminddb\include" -DLibMMDB_LIBRARY="C:\Program Files (x86)\maxminddb\lib\maxminddb.lib" -G Ninja
+        cmake.exe --build .
+        cmake.exe --install .
+        cd
+      shell: cmd
+
+    - name: Install dependencies (Linux)
+      if: startsWith(matrix.platform, 'ubuntu-')
+      run: sudo apt-get -y install cmake make gcc g++ flex libfl-dev bison libpcap-dev libssl-dev python3 python3-dev python3-setuptools swig zlib1g-dev zip libmaxminddb-dev
+
+    - name: Install dependencies (macOS)
+      if: startsWith(matrix.platform, 'macos-')
+      run: brew install cmake swig openssl bison flex libmaxminddb
+
+    - name: Get number of CPU cores
+      uses: SimenB/github-actions-cpu-cores@v1
+      id: cpu-cores
+
+    - name: Build Zeek (Linux/macOS)
+      if: "!startsWith(matrix.platform, 'windows-')"
+      run: |
+        cd zeek-src
+        ./configure --binary-package --enable-static-broker --enable-static-binpac --disable-spicy --disable-af-packet --disable-zeekctl --disable-python --disable-broker-tests --disable-auxtools --disable-archiver --osx-min-version=12
+        make -j${{ steps.cpu-cores.outputs.count }}
+        sudo make install
+        sudo strip /usr/local/zeek/bin/zeek
+
+    - name: Finish packaging release
+      run: ./release.sh
+      env:
+        RELEASE_TAG: ${{ inputs.release_tag }}
+      shell: sh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.platform }}
+        path: zeek-*.zip
+
+    - name: Publish artifact as release
+      if: startsWith(inputs.release_tag, 'v')
+      uses: svenstaro/upload-release-action@2.7.0
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: zeek-*.zip
+        file_glob: true
+        tag: ${{ inputs.release_tag }}
+        overwrite: true
