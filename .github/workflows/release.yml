@@ -1,7 +1,6 @@
 name: Create Zeek release
 
 on:
-on:
   pull_request:
   push:
     branches:
