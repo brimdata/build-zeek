@@ -1,19 +1,14 @@
 name: Create Zeek release
 
 on:
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    tags:
+      - v*brim*
   workflow_dispatch:
-    inputs:
-      zeek_ref:
-        required: false
-        type: string
-        default: 'master'
-      build_zeek_ref:
-        required: false
-        type: string
-        default: 'main'
-      release_tag:
-        required: true
-        type: string
 
 permissions:
   contents: write
