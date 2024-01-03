@@ -50,11 +50,8 @@ install_zeek_package() {
 
         build_command=$(zkg_meta package build_command)
         if [ "$build_command" ]; then
-            if [ "$OS" = Windows_NT ]; then
-                export LDFLAGS='-static -Wl,--allow-multiple-definition'
-            fi
-            sh -c "$build_command"
-            $sudo tar -xf build/*.tgz -C /usr/local/zeek/lib/zeek/plugins
+            echo "building plugins not currently supported"
+            exit 1
         fi
 
         test_command=$(zkg_meta package test_command)
@@ -85,9 +82,8 @@ echo "@load policy/protocols/conn/community-id-logging" | $sudo tee -a /usr/loca
 mkdir -p zeek/bin zeek/lib/zeek zeek/share/zeek
 cp zeekrunner$exe zeek/
 cp /usr/local/zeek/bin/zeek$exe zeek/bin/
-cp -R /usr/local/zeek/lib/zeek/plugins zeek/lib/zeek/
 for d in base policy site builtin-plugins; do
     cp -R /usr/local/zeek/share/zeek/$d zeek/share/zeek/
 done
 
-$zip -r zeek-$RELEASE_TAG.$(go env GOOS)-$(go env GOARCH).zip zeek
+$zip -r zeek-$(git describe --always --tags).$(go env GOOS)-$(go env GOARCH).zip zeek

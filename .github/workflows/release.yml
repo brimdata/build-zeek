@@ -1,4 +1,4 @@
-name: Create Zeek release
+name: Build/release Zeek
 
 on:
   pull_request:
@@ -22,8 +22,6 @@ jobs:
     steps:
     - name: Checkout build-zeek
       uses: actions/checkout@v3
-      with:
-        ref: ${{ inputs.build_zeek_ref }}
 
     - name: Setup Go
       uses: actions/setup-go@v3
@@ -34,7 +32,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: zeek/zeek
-        ref: ${{ inputs.zeek_ref }}
+        ref: v6.0.2
         fetch-depth: 1
         submodules: recursive
         path: zeek-src
@@ -49,15 +47,13 @@ jobs:
       run: |
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
         curl -L https://github.com/maxmind/libmaxminddb/releases/download/1.8.0/libmaxminddb-1.8.0.tar.gz | tar xzvf -
-        cd libmaxminddb-1.8.0
-        curl -O https://github.com/maxmind/libmaxminddb/commit/e695f1b59640760ae14fcfaecfb26d8c0bd47f3e.diff
-        unix2dos e695f1b59640760ae14fcfaecfb26d8c0bd47f3e.diff
-        patch -p1 < e695f1b59640760ae14fcfaecfb26d8c0bd47f3e.diff
-        mkdir build
-        cd build
+        mkdir libmaxminddb-1.8.0\build
+        cd libmaxminddb-1.8.0\build
         cmake ..
         cmake --build .
         cmake --build . --target install
+        rename "C:\Program Files (x86)\maxminddb\include\maxminddb.h" maxminddb.h.bak
+        sed "/typedef ADDRESS_FAMILY sa_family_t/d" "C:\Program Files (x86)\maxminddb\include\maxminddb.h.bak" > "C:\Program Files (x86)\maxminddb\include\maxminddb.h"
       shell: cmd
 
     - name: Build Zeek (Windows)
@@ -96,10 +92,8 @@ jobs:
         sudo make install
         sudo strip /usr/local/zeek/bin/zeek
 
-    - name: Finish packaging release
+    - name: Finish packaging artifact
       run: ./release.sh
-      env:
-        RELEASE_TAG: ${{ inputs.release_tag }}
       shell: sh
 
     - name: Upload artifact
@@ -109,11 +103,11 @@ jobs:
         path: zeek-*.zip
 
     - name: Publish artifact as release
-      if: startsWith(inputs.release_tag, 'v')
+      if: startsWith(github.event.ref, 'refs/tags/')
       uses: svenstaro/upload-release-action@2.7.0
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: zeek-*.zip
         file_glob: true
-        tag: ${{ inputs.release_tag }}
+        tag: ${{ github.ref }}
         overwrite: true

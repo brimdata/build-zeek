@@ -20,13 +20,3 @@ glue found here starts from the official Zeek source code and makes only the
 changes necessary to build in GitHub Actions, add some needed
 [Zeek Packages](https://packages.zeek.org/), and produce artifacts ready for
 use in Brimcap/Zui.
-
-## Usage
-
-Create artifacts using the **Create Zeek release** workflow.
-
-![Create Zeek release workflow](workflow.png)
-
-If the given `release_tag` starts with a `v` the artifacts will be published
-to the **Releases** area of this repo. If not, the artifacts will just be
-attached to the Actions run.

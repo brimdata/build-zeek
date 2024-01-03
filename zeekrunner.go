@@ -23,9 +23,6 @@ var (
 		"share/zeek/policy",
 		"share/zeek/site",
 	}
-	zeekPluginRelPaths = []string{
-		"lib/zeek/plugins",
-	}
 )
 
 func pathEnvVar(name, topDir string, subdirs []string) string {
@@ -46,13 +43,12 @@ event zeek_init() {
 
 func launchZeek(zdepsZeekDir, zeekExecPath string) error {
 	zeekPath := pathEnvVar("ZEEKPATH", zdepsZeekDir, zeekPathRelPaths)
-	zeekPlugin := pathEnvVar("ZEEK_PLUGIN_PATH", zdepsZeekDir, zeekPluginRelPaths)
 
 	cmd := exec.Command(zeekExecPath, "-C", "-r", "-", "--exec", ExecScript, "local")
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Env = append(os.Environ(), zeekPath, zeekPlugin)
+	cmd.Env = append(os.Environ(), zeekPath)
 
 	return cmd.Run()
 }

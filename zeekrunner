@@ -3,7 +3,6 @@
 dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 export ZEEKPATH=$dir/share/zeek:$dir/share/zeek/policy:$dir/share/zeek/site
-export ZEEK_PLUGIN_PATH=$dir/lib/zeek/plugins
 
 # The packet filter and loaded scripts are disabled because they emit either
 # timeless logs or logs with timestamp set to execution time rather than time
