@@ -87,7 +87,7 @@ jobs:
       if: "!startsWith(matrix.platform, 'windows-')"
       run: |
         cd zeek-src
-        ./configure --binary-package --enable-static-broker --enable-static-binpac --disable-spicy --disable-af-packet --disable-zeekctl --disable-python --disable-broker-tests --disable-auxtools --disable-archiver --osx-min-version=12
+        ./configure --binary-package --enable-static-broker --enable-static-binpac --disable-spicy --disable-af-packet --disable-zeekctl --disable-python --disable-broker-tests --disable-auxtools --disable-archiver --osx-min-version=12 -D OPENSSL_USE_STATIC_LIBS=TRUE
         make -j${{ steps.cpu-cores.outputs.count }}
         sudo make install
         sudo strip /usr/local/zeek/bin/zeek
