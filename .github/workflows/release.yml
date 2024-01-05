@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - static-openssl
+      - static-libs
     tags:
       - v*brim*
   workflow_dispatch:
