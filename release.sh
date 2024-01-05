@@ -79,11 +79,8 @@ echo "@load policy/protocols/conn/community-id-logging" | $sudo tee -a /usr/loca
 # Create zip file.
 #
 
-mkdir -p zeek/bin zeek/lib/zeek zeek/share/zeek
+mkdir zeek
 cp zeekrunner$exe zeek/
-cp /usr/local/zeek/bin/zeek$exe zeek/bin/
-for d in base policy site builtin-plugins; do
-    cp -R /usr/local/zeek/share/zeek/$d zeek/share/zeek/
-done
+cp -R /usr/local/zeek zeek
 
 $zip -r zeek-$(git describe --always --tags).$(go env GOOS)-$(go env GOARCH).zip zeek

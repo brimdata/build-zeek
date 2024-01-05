@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - segfault
     tags:
       - v*brim*
   workflow_dispatch:
@@ -16,7 +17,7 @@ jobs:
   release:
     strategy:
       matrix:
-        platform: [macos-12, ubuntu-20.04, windows-2019]
+        platform: [windows-2019]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -74,6 +75,11 @@ jobs:
         cmake.exe .. -DCMAKE_BUILD_TYPE=release -DENABLE_ZEEK_UNIT_TESTS=yes -D CMAKE_INSTALL_PREFIX="C:\Program Files\Git\usr\local\zeek" -DLibMMDB_INCLUDE_DIR="C:\Program Files (x86)\maxminddb\include" -DLibMMDB_LIBRARY="C:\Program Files (x86)\maxminddb\lib\maxminddb.lib" -G Ninja
         cmake.exe --build .
         cmake.exe --install .
+        call zeek-path-dev.bat
+        \msys64\usr\bin\wget https://archive.wrccdc.org/pcaps/2018/wrccdc.2018-03-23.010014000000000.pcap.gz
+        \msys64\usr\bin\gzip -d wrccdc.2018-03-23.010014000000000.pcap.gz
+        src\zeek.exe -C -r wrccdc.2018-03-23.010014000000000.pcap local
+        dir *.log
         cd
       shell: cmd
       env:
