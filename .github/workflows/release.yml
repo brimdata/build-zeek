@@ -82,6 +82,8 @@ jobs:
         C:\msys64\usr\bin\gzip -d wrccdc.2018-03-23.010014000000000.pcap.gz
         src\zeek.exe -C -r wrccdc.2018-03-23.010014000000000.pcap local
         dir *.log
+        type wrccdc.2018-03-23.010014000000000.pcap | src\zeek.exe -C -r - local
+        dir *.log
         cd
       shell: cmd
       env:
