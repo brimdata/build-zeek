@@ -17,7 +17,7 @@ jobs:
   release:
     strategy:
       matrix:
-        platform: [macos-12, ubuntu-20.04, windows-2019]
+        platform: [macos-12]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -88,7 +88,7 @@ jobs:
 
     - name: Install dependencies (macOS)
       if: startsWith(matrix.platform, 'macos-')
-      run: brew install ccache cmake swig openssl bison flex libmaxminddb zlib
+      run: brew install ccache cmake swig openssl bison flex libmaxminddb
 
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v1
@@ -98,7 +98,7 @@ jobs:
       if: "!startsWith(matrix.platform, 'windows-')"
       run: |
         cd zeek-src
-        ./configure --binary-package --enable-static-broker --enable-static-binpac --disable-spicy --disable-af-packet --disable-zeekctl --disable-python --disable-broker-tests --disable-auxtools --disable-archiver --osx-min-version=12 -D OPENSSL_USE_STATIC_LIBS=TRUE -D ZLIB_USE_STATIC_LIBS=ON
+        ./configure --binary-package --enable-static-broker --enable-static-binpac --disable-spicy --disable-af-packet --disable-zeekctl --disable-python --disable-broker-tests --disable-auxtools --disable-archiver --osx-min-version=12 -D OPENSSL_USE_STATIC_LIBS=TRUE -D ZLIB_USE_STATIC_LIBS=ON -D ZLIB_ROOT=/usr/local/Cellar/zlib/1.3/lib
         make -j${{ steps.cpu-cores.outputs.count }}
         sudo make install
         sudo strip /usr/local/zeek/bin/zeek
