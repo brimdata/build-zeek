@@ -78,8 +78,8 @@ jobs:
       shell: cmd
       env:
         CCACHE_DIR: ${{runner.temp}}/.ccache
-        CMAKE_CXX_COMPILER_LAUNCHER=ccache
-        CMAKE_C_COMPILER_LAUNCHER=ccache
+        CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        CMAKE_C_COMPILER_LAUNCHER: ccache
 
     - name: Install dependencies (Linux)
       if: startsWith(matrix.platform, 'ubuntu-')
@@ -103,8 +103,8 @@ jobs:
         sudo strip /usr/local/zeek/bin/zeek
       env:
         CCACHE_DIR: ${{runner.temp}}/.ccache
-        CMAKE_CXX_COMPILER_LAUNCHER=ccache
-        CMAKE_C_COMPILER_LAUNCHER=ccache
+        CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        CMAKE_C_COMPILER_LAUNCHER: ccache
 
     - name: Finish packaging artifact
       run: ./release.sh
