@@ -32,7 +32,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: zeek/zeek
-        ref: v6.0.2
+        ref: f1e94594f91bce2ac181bba043c92586be1f1fd4
         fetch-depth: 1
         submodules: recursive
         path: zeek-src
