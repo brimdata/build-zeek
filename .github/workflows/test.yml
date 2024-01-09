@@ -34,3 +34,4 @@ jobs:
           ls -l *.log
           rm *.log ${filename/.gz/}
         done
+      shell: sh
