@@ -1,0 +1,36 @@
+name: Test Zeek artifact against many pcaps
+
+on:
+  push:
+    branches:
+      - pcap-test
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        platform: [windows-2019]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+    - name: Checkout build-zeek
+      uses: actions/checkout@v3
+
+    - name: Install wget on Windows
+      if: startsWith(matrix.platform, 'windows-')
+      run: choco install -y --no-progress wget
+      shell: cmd
+
+    - name: Run tests
+      run: |
+        wget https://github.com/brimdata/build-zeek/releases/download/v6.0.2-brim2/zeek-v6.0.2-brim2.windows-amd64.zip
+        unzip zeek-v6.0.2-brim2.windows-amd64.zip
+        for filename in $(cat wrccdc-2018-pcaps); do
+          wget https://archive.wrccdc.org/pcaps/2018/$filename
+          gzip -d $filename
+          cat ${filename/.gz/} | zeek/zeekrunner -
+          echo $?
+          ls -l *.log
+          rm *.log ${filename/.gz/}
+        done
