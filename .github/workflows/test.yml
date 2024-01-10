@@ -28,7 +28,7 @@ jobs:
         wget --quiet https://github.com/brimdata/build-zeek/releases/download/v6.2.0-brim-dev1/zeek-v6.2.0-brim-dev1.windows-amd64.zip
         unzip -q zeek-v6.2.0-brim-dev1.windows-amd64.zip
         mv zeek/share/zeek/site/local.zeek zeek/share/zeek/site/local.zeek.orig
-        sed "/detect-MHR/d;/interesting-hostnames/d" > zeek/share/zeek/site/local.zeek
+        sed "/detect-MHR/d;/interesting-hostnames/d" zeek/share/zeek/site/local.zeek.orig > zeek/share/zeek/site/local.zeek
         for filename in $(wget -O - https://archive.wrccdc.org/pcaps/2018/ | grep \.pcap\.gz | sed 's/.*href="//' | sed 's/".*$//'); do
           echo "Testing with $filename"
           wget --quiet https://archive.wrccdc.org/pcaps/2018/$filename
