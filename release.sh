@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/bash -ex
 
 case $(uname) in
     Darwin|Linux)
@@ -74,6 +74,11 @@ install_zeek_package brimdata/geoip-conn c9dd7f0f8d40573189b2ed2bae9fad478743cfd
 install_zeek_package salesforce/hassh 76a47abe9382109ce9ba530e7f1d7014a4a95209
 install_zeek_package salesforce/ja3 421dd4f3616b533e6971bb700289c6bb8355e707
 echo "@load policy/protocols/conn/community-id-logging" | $sudo tee -a /usr/local/zeek/share/zeek/site/local.zeek
+
+# Work around https://github.com/zeek/zeek/issues/3534 on Windows
+[[ $(uname) =~ "NT" ]] &&
+  mv /usr/local/zeek/share/zeek/site/local.zeek /usr/local/zeek/share/zeek/site/local.zeek.orig &&
+  sed 's/^@load protocols\/ssh\/interesting-hostnames/#@load protocols\/ssh\/interesting-hostnames # https:\/\/github.com\/zeek\/zeek\/issues\/3534 workaround/; s/^@load frameworks\/files\/detect-MHR/#@load frameworks\/files\/detect-MHR # https:\/\/github.com\/zeek\/zeek\/issues\/3534 workaround/' /usr/local/zeek/share/zeek/site/local.zeek.orig > /usr/local/zeek/share/zeek/site/local.zeek
 
 #
 # Create zip file.
