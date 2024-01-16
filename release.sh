@@ -77,8 +77,10 @@ echo "@load policy/protocols/conn/community-id-logging" | $sudo tee -a /usr/loca
 
 # Work around https://github.com/zeek/zeek/issues/3534 on Windows
 [[ $(uname) =~ "NT" ]] &&
-  mv /usr/local/zeek/share/zeek/site/local.zeek /usr/local/zeek/share/zeek/site/local.zeek.orig &&
-  sed 's/^@load protocols\/ssh\/interesting-hostnames/#@load protocols\/ssh\/interesting-hostnames # https:\/\/github.com\/zeek\/zeek\/issues\/3534 workaround/; s/^@load frameworks\/files\/detect-MHR/#@load frameworks\/files\/detect-MHR # https:\/\/github.com\/zeek\/zeek\/issues\/3534 workaround/' /usr/local/zeek/share/zeek/site/local.zeek.orig > /usr/local/zeek/share/zeek/site/local.zeek
+  sed -i \
+    -e 's|^@load protocols/ssh/interesting-hostnames|#\0 # https://github.com/zeek/zeek/issues/3534 workaround|' \
+    -e  's|^@load frameworks/files/detect-MHR|#\0 # https://github.com/zeek/zeek/issues/3534 workaround|' \
+    /usr/local/zeek/share/zeek/site/local.zeek
 
 #
 # Create zip file.
