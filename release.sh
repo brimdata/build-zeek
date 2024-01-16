@@ -79,7 +79,7 @@ echo "@load policy/protocols/conn/community-id-logging" | $sudo tee -a /usr/loca
 [[ $(uname) =~ "NT" ]] &&
   sed -i \
     -e 's|^@load protocols/ssh/interesting-hostnames|#\0 # https://github.com/zeek/zeek/issues/3534 workaround|' \
-    -e  's|^@load frameworks/files/detect-MHR|#\0 # https://github.com/zeek/zeek/issues/3534 workaround|' \
+    -e 's|^@load frameworks/files/detect-MHR|#\0 # https://github.com/zeek/zeek/issues/3534 workaround|' \
     /usr/local/zeek/share/zeek/site/local.zeek
 
 #
