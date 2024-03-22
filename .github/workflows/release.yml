@@ -32,7 +32,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: zeek/zeek
-        ref: v6.0.3
+        ref: v6.2.0
         fetch-depth: 1
         submodules: recursive
         path: zeek-src
@@ -61,14 +61,13 @@ jobs:
     - name: Build Zeek (Windows)
       if: startsWith(matrix.platform, 'windows-')
       run: |
-        choco install -y --no-progress conan --version=1.58.0
         choco install -y --no-progress winflexbison3
         choco install -y --no-progress ccache
         call refreshenv
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
         mkdir zeek-src\build
         cd zeek-src\build
-        cmake.exe .. -DCMAKE_BUILD_TYPE=release -DENABLE_ZEEK_UNIT_TESTS=yes -D CMAKE_INSTALL_PREFIX="C:\Program Files\Git\usr\local\zeek" -DLibMMDB_INCLUDE_DIR="C:\Program Files (x86)\maxminddb\include" -DLibMMDB_LIBRARY="C:\Program Files (x86)\maxminddb\lib\maxminddb.lib" -G Ninja
+        cmake.exe .. -DCMAKE_BUILD_TYPE=release -DVCPKG_TARGET_TRIPLET="x64-windows-static" -DENABLE_ZEEK_UNIT_TESTS=yes -DCMAKE_INSTALL_PREFIX="C:\Program Files\Git\usr\local\zeek" -DLibMMDB_INCLUDE_DIR="C:\Program Files (x86)\maxminddb\include" -DLibMMDB_LIBRARY="C:\Program Files (x86)\maxminddb\lib\maxminddb.lib" -G Ninja
         cmake.exe --build .
         cmake.exe --install .
         cd
