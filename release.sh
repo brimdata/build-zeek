@@ -76,6 +76,12 @@ install_zeek_package salesforce/ja3 421dd4f3616b533e6971bb700289c6bb8355e707
 $sudo tee -a /usr/local/zeek/share/zeek/site/local.zeek << EOF
 @load policy/protocols/conn/community-id-logging
 @load policy/protocols/ssl/ssl-log-ext
+
+# Add geolocation data to notice logs
+hook Notice::policy(n: Notice::Info) &priority=10
+        {
+        add n$actions[Notice::ACTION_ADD_GEODATA];
+        }
 EOF
 
 # Work around https://github.com/zeek/zeek/issues/3534 on Windows
