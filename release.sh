@@ -70,7 +70,7 @@ install_zeek_package() {
 
 $sudo pip3 install btest wheel
 
-install_zeek_package brimdata/geoip-conn 47d53a11921f4932b3076fee5fc50493b108764f
+install_zeek_package brimdata/geoip-conn 4be3eb91a556c91659953f27495b0ab52dae9219
 install_zeek_package salesforce/hassh 76a47abe9382109ce9ba530e7f1d7014a4a95209
 install_zeek_package salesforce/ja3 421dd4f3616b533e6971bb700289c6bb8355e707
 
